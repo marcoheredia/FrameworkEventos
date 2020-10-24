@@ -15,10 +15,16 @@
 #ifndef FW_DAC_H_
 #define FW_DAC_H_
 #include <stdbool.h>
+#include "fw_defaultevents.h"
+#include "fw_event.h"
 #include "driver/gpio.h"
 #include "driver/dac.h"
 #include "fw_error.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 /**
  * @brief Enable DAC
  *

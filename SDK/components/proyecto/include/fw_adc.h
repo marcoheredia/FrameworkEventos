@@ -16,8 +16,15 @@
 #define FW_ADC_H_
 #include <stdbool.h>
 #include "driver/adc.h"
+#include "fw_defaultevents.h"
+#include "fw_event.h"
 #include "fw_error.h"
+#include "esp_log.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 /**
  * @brief Configure and enable ADC
  *

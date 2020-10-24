@@ -18,6 +18,10 @@
 #include "driver/gpio.h"
 #include "fw_error.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 /**
  * @brief Set mode for a specific GPIO pin, 
  *

@@ -84,9 +84,7 @@ bool fw_i2c_master_read(i2c_port_t i2c_port, uint16_t addr, uint8_t *data_rd, si
 	if(ret!=ESP_OK)
 	    return false;
 	else{
-		#ifdef FW_DEFAULTEVENTS
-		    fw_event_post(FW_EVENT_I2CMASTERREAD, NULL, 0, portMAX_DELAY);
-		#endif // #ifdef FW_DEFAULTEVENTS
+		fw_event_post(FW_EVENT_I2CMASTERREAD, NULL, 0, portMAX_DELAY);
 		return true;
 	}
 }
@@ -105,9 +103,7 @@ bool fw_i2c_master_write(i2c_port_t i2c_port, uint16_t addr, uint8_t *data_wr, s
 	if(ret!=ESP_OK)
 	    return false;
 	else {
-		#ifdef FW_DEFAULTEVENTS
-		    fw_event_post(FW_EVENT_MASTERWRITE, NULL, 0, portMAX_DELAY);
-		#endif // #ifdef FW_DEFAULTEVENTS
+		fw_event_post(FW_EVENT_I2CMASTERWRITE, NULL, 0, portMAX_DELAY);
 		return true;
 	}
 }
@@ -116,9 +112,7 @@ size_t fw_i2c_slave_read(i2c_port_t i2c_port, uint8_t *data_rd, size_t size)
 {
 	if(i2c_port<0|| i2c_port>2 || data_rd==NULL || size<1)
     	return -1;
-    #ifdef FW_DEFAULTEVENTS
-	    fw_event_post(FW_EVENT_SLAVEREAD, NULL, 0, portMAX_DELAY);
-	#endif // #ifdef FW_DEFAULTEVENTS
+    fw_event_post(FW_EVENT_I2CSLAVEREAD, NULL, 0, portMAX_DELAY);
 	return i2c_slave_read_buffer(i2c_port, data_rd, size, 1000 / portTICK_RATE_MS);
 }
 
@@ -126,9 +120,7 @@ size_t fw_i2c_slave_write(i2c_port_t i2c_port, uint8_t *data_wr, size_t size)
 {
 	if(i2c_port<0|| i2c_port>2 || data_wr==NULL || size<1)
     	return -1;
-    #ifdef FW_DEFAULTEVENTS
-		fw_event_post(FW_EVENT_SLAVEWRITE, NULL, 0, portMAX_DELAY);
-	#endif // #ifdef FW_DEFAULTEVENTS
+    fw_event_post(FW_EVENT_I2CSLAVEWRITE, NULL, 0, portMAX_DELAY);
 	return i2c_slave_write_buffer(i2c_port, data_wr, size, 1000 / portTICK_RATE_MS);
 }
 

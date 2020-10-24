@@ -17,15 +17,16 @@
 #define FW_SPIFFS_H_
 #include <stdbool.h>
 #include <stdio.h>
+#include <sys/unistd.h>
 #include <sys/stat.h>
-#include "fw_config.h"
 #include "esp_spiffs.h"
-
+#include "esp_log.h"
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+	
 /**
  * @brief Creates a file
  *

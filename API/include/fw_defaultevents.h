@@ -12,9 +12,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#ifndef FW_DEFAULTEVENTS_H_
-#define FW_DEFAULTEVENTS_H_
+#ifndef FW_DEFAULTEVENTS_H
+#define FW_DEFAULTEVENTS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define FW_EVENT_ADC 3001
 #define FW_EVENT_DAC 3002
@@ -37,5 +40,5 @@
 } // extern "C"
 #endif
 
-#endif // #ifndef FW_DEFAULTEVENTS_H_
+#endif // #ifndef FW_DEFAULTEVENTS_H
 

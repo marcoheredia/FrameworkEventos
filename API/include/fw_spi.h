@@ -16,6 +16,8 @@
 #ifndef FW_SPI_H_
 #define FW_SPI_H_
 #include <stdbool.h>
+#include "fw_defaultevents.h"
+#include "fw_event.h"
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 #include <string.h>

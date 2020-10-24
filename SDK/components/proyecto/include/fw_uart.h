@@ -16,12 +16,17 @@
 #ifndef FW_UART_H_
 #define FW_UART_H_
 #include <stdbool.h>
+#include "fw_defaultevents.h"
+#include "fw_event.h"
 #include "driver/uart.h"
+#include "driver/gpio.h"
+#include "esp_log.h"
+#include "esp_system.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+	
 /**
  * @brief configurates the uart port
  *

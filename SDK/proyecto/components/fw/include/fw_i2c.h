@@ -16,6 +16,8 @@
 #ifndef FW_I2C_H_
 #define FW_I2C_H_
 #include <stdbool.h>
+#include "fw_defaultevents.h"
+#include "fw_event.h"
 #include "driver/i2c.h"
 
 #ifdef __cplusplus

@@ -69,9 +69,7 @@ bool fw_dac_output_voltage(int pin, int mv_value)
     esp_err_t err;
     err = dac_output_voltage(dac_channel, dac_value);
     if (err==FW_OK){
-        #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_DAC, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+        fw_event_post(FW_EVENT_DAC, NULL, 0, portMAX_DELAY);
         return true;
     }
     return false;

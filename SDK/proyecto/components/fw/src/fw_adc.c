@@ -87,17 +87,13 @@ int fw_adc_read(int pin)
     if (adc_pin.unit==-1 || adc_pin.channel==-1)
         return -1;
     if(adc_pin.unit==1){
-        #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_ADC, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+        fw_event_post(FW_EVENT_ADC, NULL, 0, portMAX_DELAY);
         return adc1_get_raw(adc_pin.channel);
     }
     else if(adc_pin.unit==2){
         int adc_raw_value=-1;
         adc2_get_raw(adc_pin.channel,ADC_WIDTH_BIT_12, &adc_raw_value);
-        #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_ADC, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+        fw_event_post(FW_EVENT_ADC, NULL, 0, portMAX_DELAY);
         return adc_raw_value;
     }
     return -1;

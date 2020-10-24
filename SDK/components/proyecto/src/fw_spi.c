@@ -86,9 +86,7 @@ int fw_spi_transmit(spi_device_handle_t spi, const uint8_t *data, int len)
     t.user=(void*)1;                //D/C needs to be set to 1
     ret=spi_device_polling_transmit(spi, &t);  //Transmit!
     if(ret==ESP_OK){
-        #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_SPITRANSMIT, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+        fw_event_post(FW_EVENT_SPITRANSMIT, NULL, 0, portMAX_DELAY);
     	return len*8;
     }
     else

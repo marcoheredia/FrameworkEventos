@@ -17,6 +17,10 @@
 #include "esp_event.h"
 #include "fw_error.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 /**
  * @brief Register an event handler with its args in the default event loop
  *

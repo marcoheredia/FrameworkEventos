@@ -14,10 +14,6 @@
 */
 
 #include "fw_mqtt.h"
-#include "esp_event.h"
-#include "freertos/event_groups.h"
-
-#include "esp_log.h"
 
 /* ------------------------- Static Variables ------------------------------- */
 static EventGroupHandle_t s_connect_event_group;
@@ -48,9 +44,7 @@ esp_mqtt_client_handle_t fw_mqtt_start_client(char *uri)
 	s_connect_event_group = xEventGroupCreate();
 
 	xEventGroupWaitBits(s_connect_event_group, 1, true, true, portMAX_DELAY);
-	#ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_MQTTSTART, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+	fw_event_post(FW_EVENT_MQTTSTART, NULL, 0, portMAX_DELAY);
 	return client;
 }
 
@@ -73,9 +67,7 @@ bool fw_mqtt_client_subscribe(esp_mqtt_client_handle_t client, const char *topic
     ret=esp_mqtt_client_subscribe(client, topic, qos);
     if(ret!=ESP_OK)
 	    return false;
-	#ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_MQTTSUBS, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+	fw_event_post(FW_EVENT_MQTTSUBS, NULL, 0, portMAX_DELAY);
 	return true;
 }
 
@@ -92,14 +84,13 @@ bool fw_mqtt_client_unsubscribe(esp_mqtt_client_handle_t client, const char *top
 
 int fw_mqtt_client_publish(esp_mqtt_client_handle_t client, const char *topic, const char *data, int len, int qos)
 {
-	if(client==NULL || topic==NULL || data==NULL || len<0 || qos<0 || qos>2)
+	if(client==NULL || topic==NULL || data==NULL || len<0 || qos<0 || qos>2){
 		return -1;
+	}
 	int msg_id;
 
     msg_id = esp_mqtt_client_publish(client, topic, data, len, qos, 0);
 	ESP_LOGI("mqtt_publish", "sent publish successful, msg_id=%d", msg_id);
-	#ifdef FW_DEFAULTEVENTS
-        fw_event_post(FW_EVENT_MQTTPUBL, NULL, 0, portMAX_DELAY);
-    #endif // #ifdef FW_DEFAULTEVENTS
+	fw_event_post(FW_EVENT_MQTTPUBL, NULL, 0, portMAX_DELAY);
 	return msg_id;
 }

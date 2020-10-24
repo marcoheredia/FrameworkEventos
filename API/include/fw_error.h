@@ -14,6 +14,10 @@
 #ifndef FW_ERR_H_
 #define FW_ERR_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef int32_t fw_err_t;
 
 /* Definitions for error constants. */

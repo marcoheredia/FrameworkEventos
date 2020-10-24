@@ -43,15 +43,35 @@ static size_t fw_file_size(const char* filename)
 static void fw_spiffs_register()
 {
 	if(spiffs_registered==false){
-		esp_vfs_spiffs_conf_t conf = {
-	      	.base_path = "/spiffs",
-	      	.partition_label = NULL,
-	      	.max_files = 10,
-	      	.format_if_mount_failed = true
+	    ESP_LOGI("fw_spiffs", "Initializing SPIFFS");
+	    esp_vfs_spiffs_conf_t conf = {
+	      .base_path = "/spiffs",
+	      .partition_label = NULL,
+	      .max_files = 5,
+	      .format_if_mount_failed = true
 	    };
+
 	    esp_err_t err = esp_vfs_spiffs_register(&conf);
-	    if (err == ESP_OK){
+
+	    if (err != ESP_OK) {
+	        if (err == ESP_FAIL) {
+	            ESP_LOGE("fw_spiffs", "Failed to mount or format filesystem");
+	        } else if (err == ESP_ERR_NOT_FOUND) {
+	            ESP_LOGE("fw_spiffs", "Failed to find SPIFFS partition");
+	        } else {
+	            ESP_LOGE("fw_spiffs", "Failed to initialize SPIFFS (%s)", esp_err_to_name(err));
+	        }
+	        return;
+	    }
+	    else
 	    	spiffs_registered=true;
+	    
+	    size_t total = 0, used = 0;
+	    err = esp_spiffs_info(NULL, &total, &used);
+	    if (err != ESP_OK) {
+	        ESP_LOGE("fw_spiffs", "Failed to get SPIFFS partition information (%s)", esp_err_to_name(err));
+	    } else {
+	        ESP_LOGI("fw_spiffs", "Partition size: total: %d, used: %d", total, used);
 	    }
 	}
 }
@@ -64,10 +84,10 @@ bool *fw_spiffs_create(const char *filename)
 	struct stat st;
 	if (stat(filename, &st) == 0) {
 		//File already exists
-		return false;
+		unlink(filename);
 	}	
 	FILE *f = NULL;
-	f = fopen(filename ,"a");
+	f = fopen(filename ,"x");
 	fclose(f);
 	return true;
 }
@@ -114,14 +134,13 @@ char *fw_spiffs_read(const char *filename, size_t bytes_to_read)
 
 bool fw_spiffs_rename(const char *filename, const char *newfilename)
 {
-	fw_spiffs_register();
 	// Check if destination file exists before renaming
 	struct stat st;
-	if (stat(filename, &st) == 0) {
-		return false;
+	if (stat(newfilename, &st) == 0) {
+		unlink(newfilename);
 	}
     // Rename original file
-    if (rename(newfilename, filename) != 0) {
+    if (rename(filename, newfilename) != 0) {
         return false;
     }
     return true;

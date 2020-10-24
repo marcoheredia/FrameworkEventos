@@ -16,18 +16,19 @@
 #ifndef FW_OTA_H_
 #define FW_OTA_H_
 #include <stdbool.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_http_client.h"
 #include "esp_https_ota.h"
 #include "esp_ota_ops.h"
 #include "fw_error.h"
-#define BUFFSIZE 1024
+#include "esp_log.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
+	
 /**
  * @brief Generates an OTA update from the url past as parameter
  *

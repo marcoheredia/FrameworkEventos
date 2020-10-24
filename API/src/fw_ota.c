@@ -17,88 +17,66 @@
 
 /* ------------------------- Static Variables ------------------------------- */
 
-static char ota_write_data[BUFFSIZE + 1] = { 0 };
-
 /* ------------------------- Static Functions ------------------------------- */
 
+static bool fw_validate_binary(esp_app_desc_t *new_app_info){
+    if (new_app_info == NULL) {
+        return false;
+    }
+    const esp_partition_t *running = esp_ota_get_running_partition();
+    esp_app_desc_t running_app_info;
+    if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK) {
+        ESP_LOGI("fw_ota", "Versión actual del firmware: %s", running_app_info.version);
+    }
 
-static void http_cleanup(esp_http_client_handle_t client)
-{
-    esp_http_client_close(client);
-    esp_http_client_cleanup(client);
+    if (memcmp(new_app_info->version, running_app_info.version, sizeof(new_app_info->version)) == 0) {
+        ESP_LOGI("fw_ota", "Firmware actual es igual al nuevo. Se cancela la actualización.");
+        return false;
+    }
+    return true;
 }
+
 
 /* ---------------------------- Public API ---------------------------------- */
 
 bool fw_ota_init(const char *url,const char *cert_pem)
 {
-	esp_err_t err;
-    /* update handle : set by esp_ota_begin(), must be freed via esp_ota_end() */
-    esp_ota_handle_t update_handle = 0 ;
-    const esp_partition_t *update_partition = NULL;
-    const esp_partition_t *configured_partition = esp_ota_get_boot_partition();
-    const esp_partition_t *running_partition = esp_ota_get_running_partition();
-    if (configured_partition != running_partition) {
-        //This can happen if either the OTA boot data or preferred boot image become corrupted somehow.
-        return false;
-    }
-	esp_http_client_config_t config = {
+    esp_http_client_config_t config = {
         .url = url,
         .cert_pem = cert_pem,
     };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    if (client == NULL) {
-        return false;
-    }
-    err = esp_http_client_open(client, 0);
+    esp_https_ota_config_t ota_config = {
+        .http_config = &config,
+    };
+    esp_https_ota_handle_t https_ota_handle = NULL;
+    esp_err_t err = esp_https_ota_begin(&ota_config, &https_ota_handle);
     if (err != ESP_OK) {
+        ESP_LOGE("fw_ota", "Fallo en la inicialización de OTA.");
         return false;
     }
-    esp_http_client_fetch_headers(client);
-    update_partition = esp_ota_get_next_update_partition(NULL);
-    assert(update_partition != NULL);
-    err = esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &update_handle);
+    esp_app_desc_t app_desc;
+    err = esp_https_ota_get_img_desc(https_ota_handle, &app_desc);
     if (err != ESP_OK) {
-        http_cleanup(client);
+        ESP_LOGE("fw_ota", "Fallo con la lectura del binario.");
         return false;
     }
-    //esp_ota_begin succeeded.
-    int binary_file_length = 0;
-    /*deal with all receive packet*/
+    bool bin=fw_validate_binary(&app_desc);
+    if (bin==false)
+        return false;
+
     while (1) {
-        int data_read = esp_http_client_read(client, ota_write_data, BUFFSIZE);
-        if (data_read < 0) {
-            //SSL data read error
-            http_cleanup(client);
-            return false;
-        } else if (data_read > 0) {
-            err = esp_ota_write( update_handle, (const void *)ota_write_data, data_read);
-            if (err != ESP_OK) {
-                http_cleanup(client);
-                return false;
-            }
-            binary_file_length += data_read;
-        } else if (data_read == 0) {
-            //All data received
+        err = esp_https_ota_perform(https_ota_handle);
+        if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS) {
             break;
         }
     }
-    if (esp_ota_end(update_handle) != ESP_OK) {
-        //esp_ota_end failed
-        http_cleanup(client);
-        return false;
+    esp_err_t ota_finish_err = esp_https_ota_finish(https_ota_handle);
+    if ((err == ESP_OK) && (ota_finish_err == ESP_OK)) {
+        ESP_LOGI("fw_ota", "Actualización OTA exitosa.");
+        esp_restart();
+        return true;
+    } else {
+        ESP_LOGE("fw_ota", "Fallo en la actualización OTA.");
     }
-    if (esp_partition_check_identity(esp_ota_get_running_partition(), update_partition) == true) {
-        //The current running firmware is same as the firmware just downloaded");
-        return false;
-    }
-    err = esp_ota_set_boot_partition(update_partition);
-    if (err != ESP_OK) {
-        //esp_ota_set_boot_partition failed
-        http_cleanup(client);
-        return false;
-    }
-    //Prepare to restart system
-	esp_restart();
-    return true;
+    return false;
 }

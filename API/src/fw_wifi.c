@@ -12,14 +12,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include <string.h>
-#include "esp_event.h"
-#include "esp_wifi.h"
-#include "esp_log.h"
-#include "tcpip_adapter.h"
-#include "freertos/event_groups.h"
-#include "fw_wifi.h"
 
+#include "fw_wifi.h"
 
 /* ------------------------- Static Variables ------------------------------- */
 #define GOT_IPV4_BIT BIT(0)
@@ -67,9 +61,7 @@ bool fw_wifi_setup_ap(char *wifi_ssid, char *wifi_pass)
     ret=esp_wifi_start();
     if(ret!=ESP_OK)
 	    return false;
-    #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_WIFIAP, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+    fw_event_post(FW_EVENT_WIFIAP, NULL, 0, portMAX_DELAY);
 	return true;
 }
 
@@ -105,10 +97,8 @@ bool fw_wifi_connect(char *wifi_ssid, char *wifi_pass)
     s_connection_name = wifi_ssid;
     xEventGroupWaitBits(s_connect_event_group, CONNECTED_BITS, true, true, portMAX_DELAY);
     ESP_LOGI("wifi_connect", "Connected to %s", s_connection_name);
-    ESP_LOGI("wifi_connect", "IPv4 address: " IPSTR, IP2STR(&s_ip_addr));
-    #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_WIFICON, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+    ESP_LOGI("wifi_connect", "IPv4 address: " IPSTR, IP2STR(&s_ip_addr));      
+    fw_event_post(FW_EVENT_WIFICON, NULL, 0, portMAX_DELAY);
     return true;
 }
 
@@ -118,9 +108,7 @@ bool fw_wifi_disconnect(void)
 	ret=esp_wifi_disconnect();
 	if(ret!=ESP_OK)
 	    return false;
-    #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_WIFIDIS, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+    fw_event_post(FW_EVENT_WIFIDIS, NULL, 0, portMAX_DELAY);
 	return true;
 }
 

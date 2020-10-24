@@ -69,14 +69,13 @@ bool fw_pwm_set(int pin, int frequency, float duty)
         return false;
     int pwm_num=pwm_num_get(pin);
     if(pwm_num!=-1){
+	fw_event_post(FW_EVENT_PWM, NULL, 0, portMAX_DELAY);
         return pwm_edit(pwm_num, frequency, duty);
     }
     else{
         if (pwm_number>=5)
             return false;
-        #ifdef FW_DEFAULTEVENTS
-            fw_event_post(FW_EVENT_PWM, NULL, 0, portMAX_DELAY);
-        #endif // #ifdef FW_DEFAULTEVENTS
+        fw_event_post(FW_EVENT_PWM, NULL, 0, portMAX_DELAY);
         return pwm_set(pwm_number, pin, frequency, duty);
     }
 }
