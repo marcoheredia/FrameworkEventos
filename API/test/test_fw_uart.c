@@ -61,13 +61,13 @@ TEST_CASE("fw_uart_configure_rightlength", "[proyecto]")
 TEST_CASE("fw_uart_configure_rightstop", "[proyecto]") 
 {
     TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_1,  UART_PARITY_ODD,  92000));
-    TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_1_5,  UART_PARITY_ODD,  92000);
+    TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_1_5,  UART_PARITY_ODD,  92000));
     TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_ODD,  92000));
 }
 
 TEST_CASE("fw_uart_configure_rightparity", "[proyecto]") 
 {
-    TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_DISABLE,  92000);
+    TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_DISABLE,  92000));
     TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_EVEN,  92000));
     TEST_ASSERT_TRUE(fw_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_ODD,  92000));
 }
@@ -114,12 +114,12 @@ TEST_CASE("fw_uart_read_nullbuffer", "[proyecto]")
 //*****Test for fw_uart_flush*****/
 TEST_CASE("fw_uart_configure_negativeport", "[proyecto]") 
 {
-    TEST_ASSERT_FALSE(fw_uart_flush( -1);
+    TEST_ASSERT_FALSE(fw_uart_flush( -1));
 }
 
 TEST_CASE("fw_uart_configure_highport", "[proyecto]") 
 {
-    TEST_ASSERT_FALSE(fw_uart_flush( 4);
+    TEST_ASSERT_FALSE(fw_uart_flush( 4));
 }
 
 TEST_CASE("fw_uart_configure_rightport", "[proyecto]") 
