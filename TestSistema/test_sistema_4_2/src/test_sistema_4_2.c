@@ -7,7 +7,7 @@
 #include "nvs_flash.h"
 
 #define WIFI_SSID "WiFi a7v9 2.4GHZ"
-#define WIFI_PASS "marco15464527"
+#define WIFI_PASS ""
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 const char *url="https://192.168.1.12:8070/hello-world.bin";

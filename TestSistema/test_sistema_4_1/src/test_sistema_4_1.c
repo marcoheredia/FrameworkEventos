@@ -8,8 +8,7 @@ void test_sistema_4_1_init(){
 	ESP_LOGI("", "----------------------------------");
 	ESP_LOGI("", "Test de Sistema 4.1: Manejo de Archivos: SPIFFS");
 	ESP_LOGI("", "----------------------------------");
-	char *texto=malloc(50);
-	texto="Prueba de sistema para manejo de archivos SPIFFS.";
+	char *texto="Prueba de sistema para manejo de archivos SPIFFS.";
 	fw_spiffs_create("/spiffs/prueba.txt");
 	fw_spiffs_write("/spiffs/prueba.txt", texto, strlen(texto)+1);
 	ESP_LOGI("init", "Se escribió en el archivo");
@@ -20,5 +19,4 @@ void test_sistema_4_1_init(){
 	buf=fw_spiffs_read("/spiffs/copia.txt", 50);
 	ESP_LOGI("init", "Archivo copia: %s",buf);
 	free(buf);
-	
 }

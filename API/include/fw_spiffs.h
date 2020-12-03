@@ -15,13 +15,9 @@
 
 #ifndef FW_SPIFFS_H_
 #define FW_SPIFFS_H_
-#include <stdbool.h>
-#include <stdio.h>
-#include <sys/unistd.h>
-#include <sys/stat.h>
-#include "esp_spiffs.h"
-#include "esp_log.h"
-#include "esp_err.h"
+
+#include "fw_hardware.h"
+#include "fw_esp32_spiffs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +32,7 @@ extern "C" {
  *  - true in case of success
  *	- false in case an error occurs
  */
-bool *fw_spiffs_create(const char *filename);
+bool fw_spiffs_create(const char *filename);
 
 /**
  * @brief Writes the text of buffer in the file
@@ -50,7 +46,8 @@ bool *fw_spiffs_create(const char *filename);
 size_t fw_spiffs_write(const char *filename, const char *buffer, size_t buffer_length);
 
 /**
- * @brief Reads from the file a specific number of bytes
+ * @brief Reads from the file a specific number of bytes and safe it into a buffer
+ * It's important to free the buffer after using it
  *
  * @param filename name of the file to read
  * @param buffer_length maximum number of bytes to read

@@ -15,15 +15,9 @@
 
 #ifndef FW_OTA_H_
 #define FW_OTA_H_
-#include <stdbool.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_http_client.h"
-#include "esp_https_ota.h"
-#include "esp_ota_ops.h"
-#include "fw_error.h"
-#include "esp_log.h"
+
+#include "fw_esp32_ota.h"
+#include "fw_hardware.h"
 
 #ifdef __cplusplus
 extern "C" {

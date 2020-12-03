@@ -16,12 +16,8 @@
 #ifndef FW_MQTT_H_
 #define FW_MQTT_H_
 #include <stdbool.h>
-#include "fw_defaultevents.h"
-#include "fw_event.h"
-#include "mqtt_client.h"
-#include "esp_event.h"
-#include "freertos/event_groups.h"
-#include "esp_log.h"
+#include "fw_esp32_mqtt.h"
+#include "fw_hardware.h"
 
 #ifdef __cplusplus
 extern "C" {

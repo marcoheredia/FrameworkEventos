@@ -1,30 +1,34 @@
 #include "test_sistema_2_2.h"
 #include "fw_defaultevents.h"
-#include "fw_adc.h"
+#include "fw_converter.h"
 #include "fw_event.h"
 #include "esp_log.h"
 
-int valor_adc;
-
-void handlerADC(){
-	ESP_LOGI("HandlerADC", "El valor medido es %d mV",valor_adc);
+void handlerADC(void *param){
+	converter_config_t *adc_config= (converter_config_t *)param;
+	ESP_LOGI("HandlerADC", "El valor medido es %d mV",adc_config->mv_value);
 }
 
 void vTask(void * pvParameters){
+	converter_config_t *adc_config= (converter_config_t *)pvParameters;
 	while(true){
-		valor_adc=fw_adc_read_voltage(32);
+		adc_config->mv_value=fw_converter_read(*adc_config);
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
+	free(adc_config);
 }
 
 void test_sistema_2_2_init(){
+	converter_config_t *adc_config=malloc(sizeof (converter_config_t *));
+	adc_config->conversion=FW_ADC;
+	adc_config->pin=32;
+	adc_config->mv_value=0;
 	ESP_LOGI("", "----------------------------------");
 	ESP_LOGI("", "Test de Sistema 2.2: ADC");
 	ESP_LOGI("", "----------------------------------");
-	valor_adc=0;
 	fw_event_loop_create();
-	fw_event_handler_register(FW_EVENT_ADC, handlerADC, NULL);
-	fw_adc_enable(32);
+	fw_event_handler_register(FW_EVENT_ADC, handlerADC, (void *) adc_config);
+	fw_converter_enable(*adc_config);
 	ESP_LOGI("init", "Se inicializó el ADC en el pin 32.");
-	xTaskCreate(vTask, "tarea", 2048, NULL, 5, NULL);
+	xTaskCreate(vTask, "tarea", 2048, (void *) adc_config, 5, NULL);
 }

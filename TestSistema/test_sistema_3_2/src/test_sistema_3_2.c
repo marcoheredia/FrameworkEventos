@@ -30,7 +30,6 @@ void vTask(void * pvParameters){
 	}
 }
 
-
 void test_sistema_3_2_init(){
 	ESP_LOGI("", "----------------------------------");
 	ESP_LOGI("", "Test de Sistema 3.2: MQTT");

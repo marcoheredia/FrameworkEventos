@@ -1,20 +1,19 @@
-/* generated from ./config.json - do not edit */
+/* generated from ./config.json */
 #ifndef FW_CONFIG_H_
 #define FW_CONFIG_H_
 #include <stddef.h>
 #include <stdbool.h>
 
-
 struct fw_config {
   struct fw_config_A {
     struct fw_config_A_a1 {
-      int a1a;
+      bool a1a;
       int a1b;
       char *a1c;
       char *a1d;
     } a1;
     struct fw_config_A_a2 {
-      int a1a;
+      bool a1a;
       int a2b;
       char *a2c;
       char *a2d;
@@ -24,8 +23,6 @@ struct fw_config {
     float a5;
   } A;
 };
-
-
 bool get_A_a1_a1a();
 
 void set_A_a1_a1a(bool new_value);

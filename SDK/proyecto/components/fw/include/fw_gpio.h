@@ -14,9 +14,9 @@
 */
 #ifndef FW_GPIO_H_
 #define FW_GPIO_H_
-#include <stdbool.h>
-#include "driver/gpio.h"
-#include "fw_error.h"
+#include "fw_esp32_gpio.h"
+#include "fw_hardware.h"
+
 
 #ifdef __cplusplus
 extern "C" {

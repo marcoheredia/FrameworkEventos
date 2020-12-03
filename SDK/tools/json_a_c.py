@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-parser = argparse.ArgumentParser(description='Create C config boilerplate from a JSON config definition')
+parser = argparse.ArgumentParser(description='Create C config file and header from a JSON config definition')
 parser.add_argument('--c_file', required=True, help="name of output file")
 parser.add_argument('--c_const_char', type=bool, default=False, help="Generate const char members for strings")
 parser.add_argument('--dest_dir', default=".", help="base path of generated files")
@@ -19,8 +19,6 @@ def do(obj, first_file, path, hdr):
   level = len(path) - 1
   indent = '  ' * level
   json_indent = '  ' * (level + 1)
-  # path is e.g. "['sys_conf', 'wifi', 'ap']"
-  # name is the last component of it, i.e. current structure name
   name = path[-1]
   # Start structure definition
   if level > 0:
@@ -34,7 +32,6 @@ def do(obj, first_file, path, hdr):
     comma = ',' if (not first_key) or (level == 0 and not first_file) else ''
     if isinstance(v, dict):
       fw_type.append('FW_TYPE_OBJECT')
-      # Nested structure
       src_body=src_body+  "{comma}\n{indent}" .format(comma=comma, indent=json_indent)+"{"
       do(v, first_file, path + [k], hdr)
     elif isinstance(v, list):

@@ -4,11 +4,11 @@
 #include "fw_defaultevents.h"
 #include "fw_event.h"
 
-char *wifi_ssid="ESP32";
-char *wifi_pass="TestSistema31";
+#define WIFI_SSID "ESP32"
+#define WIFI_PASS "TestSistema31"
 
 void handlerWIFI(){
-	ESP_LOGI("handlerWIFI", "Se inicializó el AP con SSID: %s y contraseña %s",wifi_ssid,wifi_pass);
+	ESP_LOGI("handlerWIFI", "Se inicializó el AP con SSID: %s y contraseña %s",WIFI_SSID,WIFI_PASS);
 }
 
 void test_sistema_3_1_init(){
@@ -17,5 +17,5 @@ void test_sistema_3_1_init(){
 	ESP_LOGI("", "----------------------------------");
 	fw_event_loop_create();
 	fw_event_handler_register(FW_EVENT_WIFIAP, handlerWIFI, NULL);
-	fw_wifi_setup_ap(wifi_ssid, wifi_pass);
+	fw_wifi_setup_ap(WIFI_SSID, WIFI_PASS);
 }

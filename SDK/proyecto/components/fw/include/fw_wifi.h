@@ -15,17 +15,8 @@
 
 #ifndef FW_WIFI_H_
 #define FW_WIFI_H_
-#include <stdbool.h>
-#include "fw_defaultevents.h"
-#include "fw_event.h"
-#include "esp_wifi.h"
-#include <esp_wifi_types.h>
-#include "nvs_flash.h"
-#include <string.h>
-#include "esp_event.h"
-#include "esp_log.h"
-#include "tcpip_adapter.h"
-#include "freertos/event_groups.h"
+#include "fw_esp32_wifi.h"
+#include "fw_hardware.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -15,12 +15,8 @@
 
 #ifndef FW_PWM_H_
 #define FW_PWM_H_
-#include <stdbool.h>
-#include "fw_defaultevents.h"
-#include "fw_event.h"
-#include "driver/mcpwm.h"
-#include "driver/gpio.h"
-#include "fw_error.h"
+#include "fw_hardware.h"
+#include "fw_esp32_pwm.h"
 
 #ifdef __cplusplus
 extern "C" {
