@@ -40,17 +40,17 @@ TEST_CASE("fw_esp32_spi_initialize_correct", "[proyecto]")
 //*****Test for fw_esp32_spi_transmit*****/
 TEST_CASE("fw_esp32_spi_transmit_nullhandler", "[proyecto]") 
 {
-    TEST_ASSERT_EQUAL_INT8(4,fw_esp32_spi_transmit(null,"Test",4));
+    TEST_ASSERT_EQUAL_INT8(4,fw_esp32_spi_transmit(NULL,(const uint8_t *)"Test",4));
 }
 
 TEST_CASE("fw_esp32_spi_transmit_zero", "[proyecto]") 
 {
-    TEST_ASSERT_EQUAL_INT8(4,fw_esp32_spi_transmit(spi,"Test",0));
+    TEST_ASSERT_EQUAL_INT8(4,fw_esp32_spi_transmit(spi,(const uint8_t *)"Test",0));
 }
 
 TEST_CASE("fw_esp32_spi_transmit_correct", "[proyecto]") 
 {
-    TEST_ASSERT_EQUAL_INT8(4,fw_esp32_spi_transmit(spi,"Test",4));
+    TEST_ASSERT_EQUAL_INT8(4,fw_esp32_spi_transmit(spi,(const uint8_t *)"Test",4));
 }
 
 //*****Test for fw_esp32_spi_remove*****/

@@ -16,290 +16,163 @@
 #include "fw_event.h"
 
 /* ------------------------- Static Variables ------------------------------- */
-static esp_event_loop_handle_t s_maximum_priority_loop = NULL;
-static esp_event_loop_handle_t s_medium_priority_loop = NULL;
-static esp_event_loop_handle_t s_minimum_priority_loop = NULL;
+
+static SLIST_HEAD(s_min_prio_handlers,fw_event_handler) s_min_prio_handlers = SLIST_HEAD_INITIALIZER(s_min_prio_handlers);
+static SLIST_HEAD(s_med_prio_handlers,fw_event_handler) s_med_prio_handlers = SLIST_HEAD_INITIALIZER(s_med_prio_handlers);
+static SLIST_HEAD(s_max_prio_handlers,fw_event_handler) s_max_prio_handlers = SLIST_HEAD_INITIALIZER(s_max_prio_handlers);
 
 /* ------------------------- Static Functions ------------------------------- */
+static bool event_handler_register(int event_id, fw_event_handler_t event_handler, 
+								void* event_handler_arg,int priority){
+ 	struct fw_event_handler *hand= malloc(sizeof(struct fw_event_handler));
+   	if (hand==NULL)
+      	return false;
+	hand->ev=event_id;
+	hand->handler=event_handler;
+	hand->handler_args=event_handler_arg;
+   	if(priority==1)
+   		SLIST_INSERT_HEAD(&s_min_prio_handlers,hand,next);
+   	else if(priority==2)
+   		SLIST_INSERT_HEAD(&s_med_prio_handlers,hand,next);
+   	else if(priority==3)
+   		SLIST_INSERT_HEAD(&s_max_prio_handlers,hand,next);
+   	return true;
+}
 
+static bool event_handler_unregister(int event_id, fw_event_handler_t event_handler,
+									int priority){
+	struct fw_event_handler *hand=NULL;
+   	struct fw_event_handler *next_hand=NULL;
+   	struct fw_event_handler *aux_hand=NULL;
+   	if(priority==1){
+	   	SLIST_FOREACH(hand,&s_min_prio_handlers,next){
+	      	if(hand->ev==event_id && hand->handler==event_handler){
+	         	aux_hand=hand;
+	         	break;
+	      	}
+	      	else{
+	         	next_hand=hand;
+	      	}
+	   	}
+	   	if(aux_hand==NULL)
+	      	return false;
+	   	if(next_hand==NULL)
+	      	SLIST_REMOVE_HEAD(&s_min_prio_handlers, next);
+	   	else
+	      	SLIST_REMOVE(&s_min_prio_handlers, aux_hand,fw_event_handler,next);
+	}
+	else if(priority==2){
+	   	SLIST_FOREACH(hand,&s_med_prio_handlers,next){
+	      	if(hand->ev==event_id && hand->handler==event_handler){
+	         	aux_hand=hand;
+	         	break;
+	      	}
+	      	else{
+	         	next_hand=hand;
+	      	}
+	   	}
+	   	if(aux_hand==NULL)
+	      	return false;
+	   	if(next_hand==NULL)
+	      	SLIST_REMOVE_HEAD(&s_med_prio_handlers, next);
+	   	else
+	      	SLIST_REMOVE(&s_med_prio_handlers, aux_hand,fw_event_handler,next);
+	}
+	else if(priority==3){
+	   	SLIST_FOREACH(hand,&s_max_prio_handlers,next){
+	      	if(hand->ev==event_id && hand->handler==event_handler){
+	         	aux_hand=hand;
+	         	break;
+	      	}
+	      	else{
+	         	next_hand=hand;
+	      	}
+	   	}
+	   	if(aux_hand==NULL)
+	      	return false;
+	   	if(next_hand==NULL)
+	      	SLIST_REMOVE_HEAD(&s_max_prio_handlers, next);
+	   	else
+	      	SLIST_REMOVE(&s_max_prio_handlers, aux_hand,fw_event_handler,next);
+	}
+   	free(hand);
+   	return true;
+}
 /* ---------------------------- Public API ---------------------------------- */
-ESP_EVENT_DEFINE_BASE(TASK_EVENTS);
 
-fw_err_t fw_event_handler_register(int32_t event_id, esp_event_handler_t event_handler, void* event_handler_arg)
+
+bool fw_event_handler_register(int event_id, fw_event_handler_t event_handler, 
+								void* event_handler_arg)
 {
-    return fw_event_med_priority_handler_register(TASK_EVENTS,event_id,event_handler,event_handler_arg);
+    return fw_event_med_priority_handler_register(event_id,event_handler,event_handler_arg);
 }
 
-fw_err_t fw_event_handler_unregister(int32_t event_id, esp_event_handler_t event_handler)
+bool fw_event_handler_unregister(int event_id, fw_event_handler_t event_handler)
 {
-    return fw_event_med_priority_handler_unregister(TASK_EVENTS,event_id,event_handler);
+    return fw_event_med_priority_handler_unregister(event_id,event_handler);
 }
 
-fw_err_t fw_event_post(int32_t event_id, void* event_data, size_t event_data_size, TickType_t ticks_to_wait)
+bool fw_event_post(int event_id, void* event_args)
 {
-    return fw_event_med_priority_post(TASK_EVENTS,event_id,event_data,event_data_size,ticks_to_wait);
+    if(event_id<0)
+      return false;
+   struct fw_event_handler *hand=NULL;
+   SLIST_FOREACH(hand,&s_max_prio_handlers,next){
+      if(hand->ev==event_id)
+         hand->handler(hand->handler_args,event_args);
+   }
+   SLIST_FOREACH(hand,&s_med_prio_handlers,next){
+      if(hand->ev==event_id)
+         hand->handler(hand->handler_args,event_args);
+   }
+   SLIST_FOREACH(hand,&s_min_prio_handlers,next){
+      if(hand->ev==event_id)
+         hand->handler(hand->handler_args,event_args);
+   }
+   return true;
 }
 
-fw_err_t fw_event_loop_create()
+bool fw_event_max_priority_handler_register(int event_id,fw_event_handler_t event_handler,
+											 void* event_handler_arg)
 {
-    return fw_event_med_priority_loop_create();
+    if(event_id<0 || event_handler==NULL)
+      return false;
+  	return event_handler_register(event_id,event_handler,event_handler_arg,3);
 }
 
-fw_err_t fw_event_loop_delete()
+bool fw_event_max_priority_handler_unregister(int event_id, fw_event_handler_t event_handler)
 {
-    return fw_event_med_priority_loop_delete();
+    if(event_id<0 || event_handler==NULL)
+      return false;
+  	return event_handler_unregister(event_id,event_handler,3);
 }
 
-fw_err_t fw_event_loop_run(TickType_t ticks_to_run)
+bool fw_event_med_priority_handler_register(int event_id, fw_event_handler_t event_handler, 
+											void* event_handler_arg)
 {
-    return fw_event_med_priority_loop_run(ticks_to_run);
+    if(event_id<0 || event_handler==NULL)
+      return false;
+  	return event_handler_register(event_id,event_handler,event_handler_arg,2);
 }
 
-fw_err_t fw_event_max_priority_handler_register(esp_event_base_t event_base, int32_t event_id,
-        esp_event_handler_t event_handler, void* event_handler_arg)
+bool fw_event_med_priority_handler_unregister(int event_id, fw_event_handler_t event_handler)
 {
-    if (s_maximum_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_event_handler_register_with(s_maximum_priority_loop, event_base, event_id,
-            event_handler, event_handler_arg);
+    if(event_id<0 || event_handler==NULL)
+      return false;
+  	return event_handler_unregister(event_id,event_handler,2);
 }
 
-fw_err_t fw_event_max_priority_handler_unregister(esp_event_base_t event_base, int32_t event_id,
-        esp_event_handler_t event_handler)
+bool fw_event_min_priority_handler_register(int event_id, fw_event_handler_t event_handler, 
+											void* event_handler_arg)
 {
-    if (s_maximum_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_event_handler_unregister_with(s_maximum_priority_loop, event_base, event_id,
-            event_handler);
+    if(event_id<0 || event_handler==NULL)
+      	return false;
+  	return event_handler_register(event_id,event_handler,event_handler_arg,1);
 }
 
-fw_err_t fw_event_max_priority_post(esp_event_base_t event_base, int32_t event_id,
-        void* event_data, size_t event_data_size, TickType_t ticks_to_wait)
+bool fw_event_min_priority_handler_unregister(int event_id, fw_event_handler_t event_handler)
 {
-    if (s_maximum_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_event_post_to(s_maximum_priority_loop, event_base, event_id,
-            event_data, event_data_size, ticks_to_wait);
-}
-
-fw_err_t fw_event_max_priority_loop_create()
-{
-    if (s_maximum_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    esp_event_loop_args_t max_priority_loop_args = {
-        .queue_size = CONFIG_SYSTEM_EVENT_QUEUE_SIZE,
-        .task_name = "max_loop",
-        .task_stack_size = ESP_TASKD_EVENT_STACK,
-        .task_priority = ESP_TASKD_EVENT_PRIO+1,
-        .task_core_id = 0
-    };
-    fw_err_t err;
-    err = esp_event_loop_create(&max_priority_loop_args, &s_maximum_priority_loop);
-    if (err != ESP_OK) {
-        return err;
-    }
-     return ESP_OK;
-}
-
-fw_err_t fw_event_max_priority_loop_delete()
-{
-    if (!s_maximum_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    fw_err_t err;
-    err = esp_event_loop_delete(s_maximum_priority_loop);
-    if (err != ESP_OK) {
-        return err;
-    }
-    s_maximum_priority_loop = NULL;
-    return ESP_OK;
-}
-
-fw_err_t fw_event_max_priority_loop_run(TickType_t ticks_to_run)
-{
-    if (!s_maximum_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    fw_err_t err;
-    err = esp_event_loop_run(s_maximum_priority_loop, ticks_to_run);
-    if (err != ESP_OK) {
-        return err;
-    }
-    return ESP_OK;
-}
-
-fw_err_t fw_event_med_priority_handler_register(esp_event_base_t event_base, int32_t event_id,
-        esp_event_handler_t event_handler, void* event_handler_arg)
-{
-    if (s_medium_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_event_handler_register_with(s_medium_priority_loop, event_base, event_id,
-            event_handler, event_handler_arg);
-}
-
-fw_err_t fw_event_med_priority_handler_unregister(esp_event_base_t event_base, int32_t event_id,
-        esp_event_handler_t event_handler)
-{
-    if (s_medium_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_event_handler_unregister_with(s_medium_priority_loop, event_base, event_id,
-            event_handler);
-}
-
-fw_err_t fw_event_med_priority_post(esp_event_base_t event_base, int32_t event_id,
-        void* event_data, size_t event_data_size, TickType_t ticks_to_wait)
-{
-    if (s_medium_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_event_post_to(s_medium_priority_loop, event_base, event_id,
-            event_data, event_data_size, ticks_to_wait);
-}
-
-fw_err_t fw_event_med_priority_loop_create()
-{
-    if (s_medium_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    esp_event_loop_args_t med_priority_loop_args = {
-        .queue_size = CONFIG_SYSTEM_EVENT_QUEUE_SIZE,
-        .task_name = "med_loop",
-        .task_stack_size = ESP_TASKD_EVENT_STACK,
-        .task_priority = ESP_TASKD_EVENT_PRIO,
-        .task_core_id = 0
-    };
-    fw_err_t err;
-    err = esp_event_loop_create(&med_priority_loop_args, &s_medium_priority_loop);
-    if (err != ESP_OK) {
-        return err;
-    }
-     return ESP_OK;
-}
-
-fw_err_t fw_event_med_priority_loop_delete()
-{
-    if (!s_medium_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    fw_err_t err;
-    
-    err = esp_event_loop_delete(s_medium_priority_loop);
-
-    if (err != ESP_OK) {
-        return err;
-    }
-
-    s_medium_priority_loop = NULL;
-    return ESP_OK;
-}
-
-fw_err_t fw_event_med_priority_loop_run(TickType_t ticks_to_run)
-{
-    if (!s_medium_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    fw_err_t err;
-    
-    err = esp_event_loop_run(s_medium_priority_loop, ticks_to_run);
-
-    if (err != ESP_OK) {
-        return err;
-    }
-    return ESP_OK;
-}
-
-fw_err_t fw_event_min_priority_handler_register(esp_event_base_t event_base, int32_t event_id,
-        esp_event_handler_t event_handler, void* event_handler_arg)
-{
-    if (s_minimum_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    return esp_event_handler_register_with(s_minimum_priority_loop, event_base, event_id,
-            event_handler, event_handler_arg);
-}
-
-fw_err_t fw_event_min_priority_handler_unregister(esp_event_base_t event_base, int32_t event_id,
-        esp_event_handler_t event_handler)
-{
-    if (s_minimum_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    return esp_event_handler_unregister_with(s_minimum_priority_loop, event_base, event_id,
-            event_handler);
-}
-
-fw_err_t fw_event_min_priority_post(esp_event_base_t event_base, int32_t event_id,
-        void* event_data, size_t event_data_size, TickType_t ticks_to_wait)
-{
-    if (s_minimum_priority_loop == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    return esp_event_post_to(s_minimum_priority_loop, event_base, event_id,
-            event_data, event_data_size, ticks_to_wait);
-}
-
-fw_err_t fw_event_min_priority_loop_create()
-{
-    if (s_minimum_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    esp_event_loop_args_t min_priority_loop_args = {
-        .queue_size = CONFIG_SYSTEM_EVENT_QUEUE_SIZE,
-        .task_name = "min_loop",
-        .task_stack_size = ESP_TASKD_EVENT_STACK,
-        .task_priority = ESP_TASKD_EVENT_PRIO-1,
-        .task_core_id = 0
-    };
-    fw_err_t err;
-    err = esp_event_loop_create(&min_priority_loop_args, &s_minimum_priority_loop);
-    if (err != ESP_OK) {
-        return err;
-    }
-    return ESP_OK;
-}
-
-fw_err_t fw_event_min_priority_loop_delete()
-{
-    if (!s_minimum_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    fw_err_t err;
-    
-    err = esp_event_loop_delete(s_minimum_priority_loop);
-
-    if (err != ESP_OK) {
-        return err;
-    }
-
-    s_maximum_priority_loop = NULL;
-
-    return ESP_OK;
-}
-
-fw_err_t fw_event_min_priority_loop_run(TickType_t ticks_to_run)
-{
-    if (!s_minimum_priority_loop) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    fw_err_t err;
-    
-    err = esp_event_loop_run(s_minimum_priority_loop, ticks_to_run);
-
-    if (err != ESP_OK) {
-        return err;
-    }
-    return ESP_OK;
+    if(event_id<0 || event_handler==NULL)
+      return false;
+  	return event_handler_unregister(event_id,event_handler,1);
 }

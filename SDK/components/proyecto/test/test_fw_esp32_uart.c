@@ -29,7 +29,7 @@ TEST_CASE("fw_esp32_uart_configure_negativestop", "[proyecto]")
 
 TEST_CASE("fw_esp32_uart_configure_highstop", "[proyecto]") 
 {
-    TEST_ASSERT_FALSE(fw_esp32_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  4,  UART_PARITY_ODD,  92000));
+    TEST_ASSERT_FALSE(fw_esp32_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  5,  UART_PARITY_ODD,  92000));
 }
 
 TEST_CASE("fw_esp32_uart_configure_negativeparity", "[proyecto]") 
@@ -46,8 +46,6 @@ TEST_CASE("fw_esp32_uart_configure_highparity", "[proyecto]")
 TEST_CASE("fw_esp32_uart_configure_rightport", "[proyecto]") 
 {
     TEST_ASSERT_TRUE(fw_esp32_uart_configure( UART_NUM_0,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_ODD,  92000));
-    TEST_ASSERT_TRUE(fw_esp32_uart_configure( UART_NUM_1,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_ODD,  92000));
-    TEST_ASSERT_TRUE(fw_esp32_uart_configure( UART_NUM_2,  UART_DATA_8_BITS,  UART_STOP_BITS_2,  UART_PARITY_ODD,  92000));
 }
 
 TEST_CASE("fw_esp32_uart_configure_rightlength", "[proyecto]") 
@@ -96,13 +94,13 @@ TEST_CASE("fw_esp32_uart_write_right", "[proyecto]")
 //*****Test for fw_esp32_uart_read*****/
 TEST_CASE("fw_esp32_uart_read_negativeport", "[proyecto]") 
 {
-    char *buffer;
+    char *buffer=NULL;
     TEST_ASSERT_EQUAL(-1,fw_esp32_uart_read( -1,  buffer,  4));
 }
 
 TEST_CASE("fw_esp32_uart_read_highport", "[proyecto]") 
 {
-    char *buffer;
+    char *buffer=NULL;
     TEST_ASSERT_EQUAL(-1,fw_esp32_uart_read( 5,  buffer,  4));
 }
 

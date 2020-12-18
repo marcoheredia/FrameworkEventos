@@ -2,6 +2,8 @@
 #include "fw_defaultevents.h"
 #include "fw_converter.h"
 #include "fw_event.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_log.h"
 
 void handlerADC(void *param){
@@ -26,7 +28,6 @@ void test_sistema_2_2_init(){
 	ESP_LOGI("", "----------------------------------");
 	ESP_LOGI("", "Test de Sistema 2.2: ADC");
 	ESP_LOGI("", "----------------------------------");
-	fw_event_loop_create();
 	fw_event_handler_register(FW_EVENT_ADC, handlerADC, (void *) adc_config);
 	fw_converter_enable(*adc_config);
 	ESP_LOGI("init", "Se inicializó el ADC en el pin 32.");

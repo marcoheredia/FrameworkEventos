@@ -28,13 +28,7 @@ bool fw_esp32_uart_configure(uart_port_t uart_num, uart_word_length_t data_bit, 
 		return false;
 	if(data_bit<0 || data_bit>4 || stop_bits<0 || stop_bits>4 || parity_mode<0 || parity_mode>3 )
 		return false;
-	/*const uart_config_t uart_config = {
-        .baud_rate = baudrate,
-        .data_bits = data_bit,
-        .parity = parity_mode,
-        .stop_bits = stop_bits,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-    };*/
+
     esp_err_t ret=uart_driver_install(uart_num, 2048, 0, 0, NULL, 0);
 	
     if(ret!=ESP_OK)
@@ -48,7 +42,7 @@ size_t fw_esp32_uart_write(uart_port_t uart_num, const void *buf, size_t len)
 {
 	if(uart_num<0 || uart_num>2 || buf==NULL)
 		return -1;
-	fw_event_post(FW_EVENT_UARTWRITE, NULL, 0, portMAX_DELAY);
+	fw_event_post(FW_EVENT_UARTWRITE, NULL);
 	return uart_write_bytes(uart_num, buf, len);
 }
 
@@ -56,7 +50,7 @@ size_t fw_esp32_uart_read(uart_port_t uart_num, void *buf, size_t len)
 {
 	if(uart_num<0 || uart_num>2 || buf==NULL)
 		return -1;
-	fw_event_post(FW_EVENT_UARTREAD, NULL, 0, portMAX_DELAY);
+	fw_event_post(FW_EVENT_UARTREAD, NULL);
 	return uart_read_bytes(uart_num, buf, len, 1/ portTICK_PERIOD_MS);
 }
 

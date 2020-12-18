@@ -44,7 +44,7 @@ esp_mqtt_client_handle_t fw_esp32_mqtt_start_client(char *uri)
 	s_connect_event_group = xEventGroupCreate();
 
 	xEventGroupWaitBits(s_connect_event_group, 1, true, true, portMAX_DELAY);
-	fw_event_post(FW_EVENT_MQTTSTART, NULL, 0, portMAX_DELAY);
+	fw_event_post(FW_EVENT_MQTTSTART, NULL);
 	return client;
 }
 
@@ -67,7 +67,7 @@ bool fw_esp32_mqtt_client_subscribe(esp_mqtt_client_handle_t client, const char 
     ret=esp_mqtt_client_subscribe(client, topic, qos);
     if(ret!=ESP_OK)
 	    return false;
-	fw_event_post(FW_EVENT_MQTTSUBS, NULL, 0, portMAX_DELAY);
+	fw_event_post(FW_EVENT_MQTTSUBS, NULL);
 	return true;
 }
 
@@ -91,6 +91,6 @@ int fw_esp32_mqtt_client_publish(esp_mqtt_client_handle_t client, const char *to
 
     msg_id = esp_mqtt_client_publish(client, topic, data, len, qos, 0);
 	ESP_LOGI("mqtt_publish", "sent publish successful, msg_id=%d", msg_id);
-	fw_event_post(FW_EVENT_MQTTPUBL, NULL, 0, portMAX_DELAY);
+	fw_event_post(FW_EVENT_MQTTPUBL, NULL);
 	return msg_id;
 }

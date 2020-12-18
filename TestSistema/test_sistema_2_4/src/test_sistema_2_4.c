@@ -3,6 +3,8 @@
 #include "fw_pwm.h"
 #include "fw_defaultevents.h"
 #include "fw_event.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 int ciclo_pwm;
 
@@ -28,7 +30,6 @@ void test_sistema_2_4_init(){
 	ESP_LOGI("", "Test de Sistema 2.4: PWM");
 	ESP_LOGI("", "----------------------------------");
 	ciclo_pwm=10;
-	fw_event_loop_create();
 	fw_event_handler_register(FW_EVENT_PWM, handlerPWM, NULL);
 	ESP_LOGI("init", "Se registro el handler para el evento PWM");
 	xTaskCreate(vTask, "tarea", 2048, NULL, 5, NULL);

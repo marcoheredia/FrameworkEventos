@@ -4,6 +4,8 @@
 #include "fw_mqtt.h"
 #include "fw_event.h"
 #include "fw_defaultevents.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #define WIFI_SSID "WiFi a7v9 2.4GHZ"
 #define WIFI_PASS ""
@@ -36,7 +38,6 @@ void test_sistema_3_2_init(){
 	ESP_LOGI("", "----------------------------------");
 	valor=0;
 	fw_wifi_connect(WIFI_SSID, WIFI_PASS);
-	fw_event_loop_create();
 	fw_event_handler_register(FW_EVENT_MQTTPUBL, handlerMQTT, NULL);
 	
 	esp_mqtt_client_handle_t client = fw_mqtt_start_client("mqtt://0dEd5OqN2fuOpxyFOqeG@demo.thingsboard.io");

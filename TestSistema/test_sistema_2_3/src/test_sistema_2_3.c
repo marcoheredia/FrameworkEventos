@@ -3,6 +3,8 @@
 #include "fw_defaultevents.h"
 #include "fw_converter.h"
 #include "fw_event.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 void handlerDAC(void *param){
 	converter_config_t *dac_config= (converter_config_t *)param;
@@ -32,7 +34,6 @@ void test_sistema_2_3_init(){
 	ESP_LOGI("", "Test de Sistema 2.3: DAC");
 	ESP_LOGI("", "----------------------------------");
 	bool check;
-	fw_event_loop_create();
 	fw_event_handler_register(FW_EVENT_DAC, handlerDAC, (void *) dac_config);
 	check = fw_converter_enable(*dac_config);
 	if (check==true){

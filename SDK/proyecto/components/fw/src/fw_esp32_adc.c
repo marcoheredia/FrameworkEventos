@@ -87,13 +87,13 @@ int fw_esp32_adc_read(int pin)
     if (adc_pin.unit==-1 || adc_pin.channel==-1)
         return -1;
     if(adc_pin.unit==1){
-        fw_event_post(FW_EVENT_ADC, NULL, 0, portMAX_DELAY);
+        fw_event_post(FW_EVENT_ADC, NULL);
         return adc1_get_raw(adc_pin.channel);
     }
     else if(adc_pin.unit==2){
         int adc_raw_value=-1;
         adc2_get_raw(adc_pin.channel,ADC_WIDTH_BIT_12, &adc_raw_value);
-        fw_event_post(FW_EVENT_ADC, NULL, 0, portMAX_DELAY);
+        fw_event_post(FW_EVENT_ADC, NULL);
         return adc_raw_value;
     }
     return -1;

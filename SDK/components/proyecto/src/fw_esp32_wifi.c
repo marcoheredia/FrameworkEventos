@@ -50,8 +50,8 @@ bool fw_esp32_wifi_setup_ap(char *wifi_ssid, char *wifi_pass)
 			.channel = 0,
 			.authmode = WIFI_AUTH_WPA2_PSK,
 			.ssid_hidden = 0,
-			.max_connection = 4, // number of clients to allow
-			.beacon_interval = 100 // default value
+			.max_connection = 4, 
+			.beacon_interval = 100
         }
     };
     strcpy((char *)ap_config.ap.ssid,(char *)wifi_ssid);
@@ -61,12 +61,14 @@ bool fw_esp32_wifi_setup_ap(char *wifi_ssid, char *wifi_pass)
     ret=esp_wifi_start();
     if(ret!=ESP_OK)
 	    return false;
-    fw_event_post(FW_EVENT_WIFIAP, NULL, 0, portMAX_DELAY);
+    fw_event_post(FW_EVENT_WIFIAP, NULL);
 	return true;
 }
 
 bool fw_esp32_wifi_connect(char *wifi_ssid, char *wifi_pass)
 {
+    if(wifi_ssid==NULL)
+        return false;
     nvs_flash_init();
     tcpip_adapter_init();
     esp_event_loop_create_default();
@@ -98,7 +100,7 @@ bool fw_esp32_wifi_connect(char *wifi_ssid, char *wifi_pass)
     xEventGroupWaitBits(s_connect_event_group, CONNECTED_BITS, true, true, portMAX_DELAY);
     ESP_LOGI("wifi_connect", "Connected to %s", s_connection_name);
     ESP_LOGI("wifi_connect", "IPv4 address: " IPSTR, IP2STR(&s_ip_addr));      
-    fw_event_post(FW_EVENT_WIFICON, NULL, 0, portMAX_DELAY);
+    fw_event_post(FW_EVENT_WIFICON, NULL);
     return true;
 }
 
@@ -108,7 +110,7 @@ bool fw_esp32_wifi_disconnect(void)
 	ret=esp_wifi_disconnect();
 	if(ret!=ESP_OK)
 	    return false;
-    fw_event_post(FW_EVENT_WIFIDIS, NULL, 0, portMAX_DELAY);
+    fw_event_post(FW_EVENT_WIFIDIS, NULL);
 	return true;
 }
 

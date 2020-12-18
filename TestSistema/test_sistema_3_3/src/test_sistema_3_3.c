@@ -3,6 +3,8 @@
 #include "fw_serial.h"
 #include "fw_event.h"
 #include "fw_defaultevents.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 void handlerUART(){
 	ESP_LOGI("HandlerUART", "Se envió mensaje por UART");
@@ -27,7 +29,6 @@ void test_sistema_3_3_init(){
 	ESP_LOGI("", "----------------------------------");
 	ESP_LOGI("", "Test de Sistema 3.3: UART");
 	ESP_LOGI("", "----------------------------------");
-	fw_event_loop_create();
 	fw_event_handler_register(FW_EVENT_UARTWRITE, handlerUART, NULL);
 	fw_serial_configure(uart_config);
 	xTaskCreate(vTask, "tarea", 2048, (void *) uart_config, 5, NULL);
