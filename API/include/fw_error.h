@@ -21,8 +21,8 @@ extern "C" {
 typedef int32_t fw_err_t;
 
 /* Definitions for error constants. */
-#define FW_OK          0       /*!< esp_err_t value indicating success (no error) */
-#define FW_FAIL        -1      /*!< Generic esp_err_t code indicating failure */
+#define FW_OK          0       /*!< indicates success (no error) */
+#define FW_FAIL        -1      /*!< Generic code indicating failure */
 
 #define FW_ERR_NO_MEM              0x101   /*!< Out of memory */
 #define FW_ERR_INVALID_ARG         0x102   /*!< Invalid argument */

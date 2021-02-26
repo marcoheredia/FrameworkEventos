@@ -28,7 +28,13 @@ bool fw_esp32_uart_configure(uart_port_t uart_num, uart_word_length_t data_bit, 
 		return false;
 	if(data_bit<0 || data_bit>4 || stop_bits<0 || stop_bits>4 || parity_mode<0 || parity_mode>3 )
 		return false;
-
+	/*const uart_config_t uart_config = {
+        .baud_rate = baudrate,
+        .data_bits = data_bit,
+        .parity = parity_mode,
+        .stop_bits = stop_bits,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+    };*/
     esp_err_t ret=uart_driver_install(uart_num, 2048, 0, 0, NULL, 0);
 	
     if(ret!=ESP_OK)

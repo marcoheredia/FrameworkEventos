@@ -50,8 +50,8 @@ bool fw_esp32_wifi_setup_ap(char *wifi_ssid, char *wifi_pass)
 			.channel = 0,
 			.authmode = WIFI_AUTH_WPA2_PSK,
 			.ssid_hidden = 0,
-			.max_connection = 4, 
-			.beacon_interval = 100
+			.max_connection = 4, // number of clients to allow
+			.beacon_interval = 100 // default value
         }
     };
     strcpy((char *)ap_config.ap.ssid,(char *)wifi_ssid);
@@ -67,8 +67,6 @@ bool fw_esp32_wifi_setup_ap(char *wifi_ssid, char *wifi_pass)
 
 bool fw_esp32_wifi_connect(char *wifi_ssid, char *wifi_pass)
 {
-    if(wifi_ssid==NULL)
-        return false;
     nvs_flash_init();
     tcpip_adapter_init();
     esp_event_loop_create_default();

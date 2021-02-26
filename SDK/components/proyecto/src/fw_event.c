@@ -39,13 +39,11 @@ static bool event_handler_register(int event_id, fw_event_handler_t event_handle
    	return true;
 }
 
-static bool event_handler_unregister(int event_id, fw_event_handler_t event_handler,
-									int priority){
+static bool event_handler_unregister_min(int event_id, fw_event_handler_t event_handler){
 	struct fw_event_handler *hand=NULL;
    	struct fw_event_handler *next_hand=NULL;
    	struct fw_event_handler *aux_hand=NULL;
-   	if(priority==1){
-	   	SLIST_FOREACH(hand,&s_min_prio_handlers,next){
+   	SLIST_FOREACH(hand,&s_min_prio_handlers,next){
 	      	if(hand->ev==event_id && hand->handler==event_handler){
 	         	aux_hand=hand;
 	         	break;
@@ -60,9 +58,15 @@ static bool event_handler_unregister(int event_id, fw_event_handler_t event_hand
 	      	SLIST_REMOVE_HEAD(&s_min_prio_handlers, next);
 	   	else
 	      	SLIST_REMOVE(&s_min_prio_handlers, aux_hand,fw_event_handler,next);
-	}
-	else if(priority==2){
-	   	SLIST_FOREACH(hand,&s_med_prio_handlers,next){
+	free(hand);
+   	return true;
+}
+
+static bool event_handler_unregister_med(int event_id, fw_event_handler_t event_handler){
+	struct fw_event_handler *hand=NULL;
+   	struct fw_event_handler *next_hand=NULL;
+   	struct fw_event_handler *aux_hand=NULL;
+   	SLIST_FOREACH(hand,&s_med_prio_handlers,next){
 	      	if(hand->ev==event_id && hand->handler==event_handler){
 	         	aux_hand=hand;
 	         	break;
@@ -77,9 +81,16 @@ static bool event_handler_unregister(int event_id, fw_event_handler_t event_hand
 	      	SLIST_REMOVE_HEAD(&s_med_prio_handlers, next);
 	   	else
 	      	SLIST_REMOVE(&s_med_prio_handlers, aux_hand,fw_event_handler,next);
-	}
-	else if(priority==3){
-	   	SLIST_FOREACH(hand,&s_max_prio_handlers,next){
+
+	free(hand);
+   	return true;
+}
+
+static bool event_handler_unregister_max(int event_id, fw_event_handler_t event_handler){
+	struct fw_event_handler *hand=NULL;
+   	struct fw_event_handler *next_hand=NULL;
+   	struct fw_event_handler *aux_hand=NULL;
+   	SLIST_FOREACH(hand,&s_max_prio_handlers,next){
 	      	if(hand->ev==event_id && hand->handler==event_handler){
 	         	aux_hand=hand;
 	         	break;
@@ -94,9 +105,23 @@ static bool event_handler_unregister(int event_id, fw_event_handler_t event_hand
 	      	SLIST_REMOVE_HEAD(&s_max_prio_handlers, next);
 	   	else
 	      	SLIST_REMOVE(&s_max_prio_handlers, aux_hand,fw_event_handler,next);
+	free(hand);
+    return true;
+}
+
+static bool event_handler_unregister(int event_id, fw_event_handler_t event_handler,
+									int priority){
+   	if(priority==1){
+	   	return event_handler_unregister_min(event_id,event_handler);
 	}
-   	free(hand);
-   	return true;
+	else if(priority==2){
+	   	return event_handler_unregister_med(event_id,event_handler);
+	}
+	else if(priority==3){
+	   	return event_handler_unregister_max(event_id,event_handler);
+	}
+   	else
+   		return false;
 }
 /* ---------------------------- Public API ---------------------------------- */
 
